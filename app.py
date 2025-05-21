@@ -9,7 +9,7 @@ import time
 app = Flask(__name__)
 
 # AWS resource setup
-S3_BUCKET = os.environ.get("S3_BUCKET", "workshop-file-share-vachanmntech")
+S3_BUCKET = os.environ.get("S3_BUCKET", "workshop-file-share-vachanmn")
 DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE", "FileLinks")
 SNS_TOPIC_ARN = os.environ.get(
     "SNS_TOPIC_ARN", "arn:aws:sns:REGION:ACCOUNT_ID:FileUploadNotifications"
