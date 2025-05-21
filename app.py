@@ -8,13 +8,23 @@ import time
 
 app = Flask(__name__)
 
+S3_BUCKET_USER = "workshop-file-share-vachanmn"
+DYNAMODB_TABLE_USER = "FileLinks"
+AWS_ACCOUNT_ID = "841162670179"
+AWS_REGION_USER = "ap-south-1"
+SNS_TOPIC_USER = "FileUploadNotifications"
+
 # AWS resource setup
-S3_BUCKET = os.environ.get("S3_BUCKET", "workshop-file-share-vachanmn")
-DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE", "FileLinks")
+S3_BUCKET = os.environ.get("S3_BUCKET", S3_BUCKET_USER)
+DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE", DYNAMODB_TABLE_USER)
+
+AWS_REGION = os.environ.get("AWS_REGION", AWS_REGION_USER)
+os.environ["AWS_DEFAULT_REGION"] = AWS_REGION
+
 SNS_TOPIC_ARN = os.environ.get(
-    "SNS_TOPIC_ARN", "arn:aws:sns:REGION:ACCOUNT_ID:FileUploadNotifications"
+    "SNS_TOPIC_ARN",
+    f"arn:aws:sns:{AWS_REGION}:{AWS_ACCOUNT_ID}:{SNS_TOPIC_USER}",
 )
-AWS_REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 s3 = boto3.client("s3", region_name=AWS_REGION)
 dynamodb = boto3.resource("dynamodb", region_name=AWS_REGION)
@@ -24,7 +34,11 @@ sns = boto3.client("sns", region_name=AWS_REGION)
 # CloudWatch logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-logger.addHandler(watchtower.CloudWatchLogHandler(log_group="FileShareAppLogs"))
+logger.addHandler(
+    watchtower.CloudWatchLogHandler(
+        log_group_name="FileShareLogs",
+    )
+)
 
 
 @app.route("/upload", methods=["POST"])
