@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Upload</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      padding: 2.5rem 2rem 2rem 2rem;
+      width: 350px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.22);
+    }
+
+    h2 {
+      margin-bottom: 1.5rem;
+      color: #2d3a4b;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .custom-file-input {
+      display: none;
+    }
+
+    .file-label {
+      display: inline-block;
+      padding: 0.7rem 1.5rem;
+      background: #4f8cff;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 1.2rem;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(79, 140, 255, 0.08);
+    }
+
+    .file-label:hover {
+      background: #2563eb;
+    }
+
+    .file-name {
+      margin-bottom: 1.2rem;
+      color: #4f8cff;
+      font-size: 0.98rem;
+      font-style: italic;
+      min-height: 1.2em;
+      text-align: center;
+      word-break: break-all;
+    }
+
+    button[type="submit"] {
+      padding: 0.7rem 2.2rem;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+      margin-bottom: 1.2rem;
+    }
+
+    button[type="submit"]:hover {
+      background: #1e40af;
+    }
+
+    #link {
+      margin-top: 1rem;
+      min-height: 1.5em;
+      text-align: center;
+      font-size: 1.05rem;
+    }
+
+    #link a {
+      color: #2563eb;
+      text-decoration: underline;
+      word-break: break-all;
+      transition: color 0.2s;
+    }
+
+    #link a:hover {
+      color: #4f8cff;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+      margin: 1.2rem auto 0 auto;
+      display: none;
+    }
+
+    .spinner.active {
+      display: block;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 400px) {
+      .card {
+        padding: 1.2rem 0.5rem 1.2rem 0.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h2>Upload a file</h2>
+    <form id="uploadForm" autocomplete="off">
+      <input type="file" id="fileInput" class="custom-file-input" />
+      <label for="fileInput" class="file-label">Choose File</label>
+      <div class="file-name" id="fileName"></div>
+      <button type="submit">Upload</button>
+    </form>
+    <div class="spinner" id="spinner"></div>
+    <div id="link"></div>
+  </div>
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDiv = document.getElementById('fileName');
+    const uploadForm = document.getElementById('uploadForm');
+    const linkDiv = document.getElementById('link');
+    const spinner = document.getElementById('spinner');
+    const fileLabel = document.querySelector('.file-label');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        fileNameDiv.textContent = fileInput.files[0].name;
+        fileLabel.textContent = "Change File";
+      } else {
+        fileNameDiv.textContent = "";
+        fileLabel.textContent = "Choose File";
+      }
+      linkDiv.innerHTML = "";
+    });
+
+    uploadForm.onsubmit = async (e) => {
+      e.preventDefault();
+      linkDiv.innerHTML = "";
+      if (!fileInput.files.length) {
+        fileNameDiv.textContent = "Please select a file.";
+        fileNameDiv.style.color = "#e11d48";
+        return;
+      }
+      fileNameDiv.style.color = "#4f8cff";
+      spinner.classList.add('active');
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/upload', { method: 'POST', body: formData });
+        if (!res.ok) throw new Error("Upload failed");
+        const data = await res.json();
+        linkDiv.innerHTML = `<a href="${data.link}" target="_blank">${data.link}</a>`;
+      } catch (err) {
+        linkDiv.innerHTML = `<span style="color:#e11d48;">Upload failed. Please try again.</span>`;
+      } finally {
+        spinner.classList.remove('active');
+      }
+    };
+  </script>
+</body>
+
+</html>
