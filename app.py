@@ -8,7 +8,7 @@ import time
 
 app = Flask(__name__)
 
-S3_BUCKET_USER = "workshop-file-share-vachanmn"
+S3_BUCKET_USER = "workshop-file-share-vachan"
 DYNAMODB_TABLE_USER = "FileLinks"
 AWS_ACCOUNT_ID = "841162670179"
 AWS_REGION_USER = "ap-south-1"
